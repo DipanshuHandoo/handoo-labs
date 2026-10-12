@@ -19,6 +19,30 @@ Use application type **Express**, Node.js **22 or later**, and entry file **`ser
 
 The root entry point and `node server/app.js` both use the same startup function. Deploy the entire repository, including `public/` and `tools/`, rather than only the server files.
 
+On **Hostinger** (Phusion Passenger), don't set any `SSL_*` variables — Hostinger terminates HTTPS and assigns the port itself. Passenger loads `server.js` with `require()`, so the entry files must not use top-level `await`. If you see a 503, check hPanel → Node.js → **Runtime logs** for the startup error.
+
+## HTTPS
+
+HTTPS turns on when both `SSL_KEY_PATH` and `SSL_CERT_PATH` are set. The server then listens on port **443** by default (override with `HTTPS_PORT`, or with `PORT` if `HTTPS_PORT` is unset), enforces TLS 1.2+, and sends an HSTS header. Without certificates it serves plain HTTP on `PORT` (default 3000), which is the right mode for managed hosts that terminate TLS for you.
+
+| Variable | Purpose |
+| --- | --- |
+| `SSL_KEY_PATH` | Private key PEM file (e.g. Let's Encrypt `privkey.pem`). |
+| `SSL_CERT_PATH` | Certificate PEM file (e.g. Let's Encrypt `fullchain.pem`). |
+| `SSL_CA_PATH` | Optional intermediate CA bundle, if not already in the certificate file. |
+| `SSL_PASSPHRASE` | Optional key passphrase. |
+| `HTTPS_PORT` | HTTPS listener port; defaults to 443. |
+| `HTTP_REDIRECT_PORT` | Optional. Starts an HTTP listener (usually `80`) that 301-redirects to HTTPS. |
+| `PUBLIC_HOST` | Optional hostname used for redirects instead of the request `Host` header. Recommended in production. |
+
+```bash
+SSL_KEY_PATH=/etc/letsencrypt/live/labs.example.com/privkey.pem \
+SSL_CERT_PATH=/etc/letsencrypt/live/labs.example.com/fullchain.pem \
+HTTP_REDIRECT_PORT=80 PUBLIC_HOST=labs.example.com npm start
+```
+
+Ports below 1024 need elevated privileges. On Linux, grant only the binding capability instead of running as root: `sudo setcap 'cap_net_bind_service=+ep' "$(which node)"`. On Windows, run as an administrator. If one certificate path is missing, the port is unavailable, or a file can't be read, the server exits with a clear error. Restart the process after renewing certificates.
+
 ## What is included
 
 - A responsive, searchable package catalogue with light/dark themes and links to each package's npm and source pages.

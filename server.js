@@ -1,3 +1,4 @@
-import { startServer } from './server/app.js';
+// No top-level await: Passenger (used by Hostinger) loads this file with require().
+import { exitOnStartupError, startServer } from './server/app.js';
 
-await startServer();
+startServer().catch(exitOnStartupError);

@@ -147,3 +147,16 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# SSL/TLS certificates and private keys
+certs/
+ssl/
+*.pem
+*.key
+*.crt
+*.cer
+*.csr
+*.pfx
+*.p12
+# Self-signed localhost fixture used only by test/https.test.js
+!test/fixtures/tls/*.pem
