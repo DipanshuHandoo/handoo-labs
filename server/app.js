@@ -55,11 +55,16 @@ export async function createApp() {
   return app;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+export async function startServer() {
   const app = await createApp();
   const port = Number(process.env.PORT ?? 3000);
   if (!Number.isSafeInteger(port) || port < 0 || port > 65_535) {
     throw new Error('PORT must be an integer from 0 to 65535.');
   }
-  app.listen(port, () => console.log(`Handoo Labs listening on http://localhost:${port}`));
+  const server = app.listen(port, () => console.log(`Handoo Labs listening on http://localhost:${server.address().port}`));
+  return server;
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  await startServer();
 }

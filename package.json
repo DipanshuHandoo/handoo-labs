@@ -8,10 +8,10 @@
     "node": ">=22"
   },
   "scripts": {
-    "start": "node server/app.js",
-    "dev": "node --watch server/app.js",
+    "start": "node server.js",
+    "dev": "node --watch server.js",
     "test": "node --test",
-    "check": "node --check server/app.js"
+    "check": "node --check server.js && node --check server/app.js"
   },
   "dependencies": {
     "@dipanshuhandoo/async-slot-pool": "^1.0.1",

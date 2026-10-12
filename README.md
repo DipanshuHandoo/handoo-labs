@@ -13,6 +13,12 @@ npm start
 
 Open <http://localhost:3000>. Use `npm run dev` for Node's built-in watch mode, `npm test` for the integration suite, and `npm run check` for a server syntax check. Set `PORT` to change the listener port.
 
+## Deployment settings
+
+Use application type **Express**, Node.js **22 or later**, and entry file **`server.js`** at the repository root. No build command or output directory is required. If your host uses a start command instead, use `npm start`. The server reads the host-provided `PORT` environment variable.
+
+The root entry point and `node server/app.js` both use the same startup function. Deploy the entire repository, including `public/` and `tools/`, rather than only the server files.
+
 ## What is included
 
 - A responsive, searchable package catalogue with light/dark themes and links to each package's npm and source pages.
