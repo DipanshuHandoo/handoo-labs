@@ -1,0 +1,12 @@
+{
+  "slug": "cache-bridge",
+  "name": "Cache Bridge",
+  "package": "@dipanshuhandoo/cache-bridge",
+  "category": "Caching",
+  "description": "Keep frequently used data close with named LRU caches, per-key TTL, memory limits, and built-in hit-rate statistics.",
+  "features": ["LRU eviction", "TTL expiration", "Live cache stats"],
+  "icon": "◉",
+  "color": "blue",
+  "repository": "https://github.com/DipanshuHandoo/cachebridge",
+  "npm": "https://www.npmjs.com/package/@dipanshuhandoo/cache-bridge"
+}

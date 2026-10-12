@@ -1,0 +1,28 @@
+{
+  "name": "handoo-labs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Interactive, production-minded playgrounds for Handoo Labs npm packages.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server/app.js",
+    "dev": "node --watch server/app.js",
+    "test": "node --test",
+    "check": "node --check server/app.js"
+  },
+  "dependencies": {
+    "@dipanshuhandoo/async-slot-pool": "^1.0.1",
+    "@dipanshuhandoo/cache-bridge": "^1.1.0",
+    "@dipanshuhandoo/excelio": "^1.0.0",
+    "@dipanshuhandoo/fetchforge": "^1.2.0",
+    "express": "^5.3.0"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "^11.1.1"
+    }
+  }
+}

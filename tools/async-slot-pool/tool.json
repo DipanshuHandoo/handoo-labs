@@ -1,0 +1,12 @@
+{
+  "slug": "async-slot-pool",
+  "name": "Async Slot Pool",
+  "package": "@dipanshuhandoo/async-slot-pool",
+  "category": "Orchestration",
+  "description": "Keep asynchronous work moving at a steady, predictable pace with bounded concurrency, retries, and per-task timeouts.",
+  "features": ["Bounded concurrency", "Retries & timeouts", "Live progress"],
+  "icon": "⌘",
+  "color": "violet",
+  "repository": "https://github.com/DipanshuHandoo/worker_pool",
+  "npm": "https://www.npmjs.com/package/@dipanshuhandoo/async-slot-pool"
+}

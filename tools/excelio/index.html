@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Build real multi-sheet Excel workbooks, validate rows, and download XLSX files using ExcelIO.">
+  <title>ExcelIO playground — Handoo Labs</title>
+  <link rel="stylesheet" href="/assets/styles.css"><link rel="stylesheet" href="/assets/demo.css"><link rel="stylesheet" href="/excelio/assets/tool.css">
+  <script src="/assets/theme.js" defer></script><script src="/assets/components.js" defer></script><script src="/assets/playground.js" defer></script><script src="/excelio/assets/demo.js" defer></script>
+</head>
+<body class="tool-pink"><div class="site-shell"><site-header active="tool"></site-header><main id="main-content" class="tool-main">
+  <a class="tool-back" href="/#toolkit"><span aria-hidden="true">←</span> All tools</a>
+  <section class="tool-hero"><div class="tool-hero-content"><span class="eyebrow"><span class="status-dot"></span> DATA TOOLS · INTERACTIVE PLAYGROUND</span><h1>ExcelIO</h1><p>Turn tidy sample data into real, multi-sheet workbooks. Generate an XLSX, read it right back, and see row-validation feedback before downloading your file.</p><div class="tool-links"><a class="quiet-link" href="https://www.npmjs.com/package/@dipanshuhandoo/excelio" target="_blank" rel="noreferrer">View on npm ↗</a><a class="quiet-link" href="https://github.com/DipanshuHandoo/excelio" target="_blank" rel="noreferrer">Source ↗</a></div><div class="feature-row"><span class="feature-pill">Real XLSX download</span><span class="feature-pill">Multi-sheet workbook</span><span class="feature-pill">Row validation</span></div></div><div class="tool-symbol" aria-hidden="true">▦</div></section>
+  <section class="lab-section"><div class="lab-heading"><div><h2>Workbook builder</h2><p>Edit the sample rows, generate two real sheets, and inspect the package's read-back validation.</p></div><span class="tool-category">UP TO 75 ROWS</span></div>
+    <div class="workspace"><form class="controls" id="excel-form"><div class="control-group"><label for="excel-rows">Sample data (JSON array)</label><textarea id="excel-rows" spellcheck="false" aria-describedby="excel-help">[
+  { "name": "Alex Kim", "team": "Platform", "score": 96 },
+  { "name": "Riley Shah", "team": "Design", "score": 88 },
+  { "name": "Morgan Lee", "team": "Platform", "score": 103 },
+  { "name": "Jamie Park", "team": "Research", "score": 91 }
+]</textarea><div class="status-line" id="excel-help">Try a blank name or score over 100 to see validation.</div></div><label class="toggle-row"><input id="excel-worker" type="checkbox"> Request a worker for workbook writing</label><div class="button-row"><button class="run-button" id="preview-button" type="submit">Build & validate <span aria-hidden="true">↗</span></button><button class="secondary-button" id="download-button" type="button">Download XLSX</button></div><div class="status-line" id="excel-status" role="status" aria-live="polite">Nothing is stored after your session.</div></form>
+    <div class="output"><div class="output-head"><span class="output-title">WORKBOOK INSPECTOR</span><span class="output-note" id="excel-size">Ready</span></div><div id="excel-metrics" class="metric-grid"></div><div id="excel-output" class="empty-output">Your workbook sheets and validation results will appear here.</div></div></div>
+    <div class="disclosure"><strong>Worker note:</strong> workbook writes can use a worker thread when requested. Read-side row-validation callbacks force ExcelIO to use its inline path, so the reader here is intentionally inline. Downloads use ExcelIO's streaming writer and are capped at 1 MB.</div>
+    <div class="bottom-note">The demo uses generated workbook data only; uploads are disabled. The lockfile pins ExcelJS's transitive UUID dependency to the patched, CommonJS-compatible 11.1.1 line.</div>
+  </section>
+</main><site-footer></site-footer></div></body></html>

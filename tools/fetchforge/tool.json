@@ -1,0 +1,12 @@
+{
+  "slug": "fetchforge",
+  "name": "FetchForge",
+  "package": "@dipanshuhandoo/fetchforge",
+  "category": "Networking",
+  "description": "Make HTTP integrations resilient with retries, timeouts, circuit breakers, response caching, and request-level metrics.",
+  "features": ["Retry & backoff", "Circuit breaker", "Response caching"],
+  "icon": "↗",
+  "color": "mint",
+  "repository": "https://github.com/DipanshuHandoo/fetchforge",
+  "npm": "https://www.npmjs.com/package/@dipanshuhandoo/fetchforge"
+}

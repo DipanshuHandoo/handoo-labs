@@ -1,0 +1,12 @@
+{
+  "slug": "excelio",
+  "name": "ExcelIO",
+  "package": "@dipanshuhandoo/excelio",
+  "category": "Data tools",
+  "description": "Read and write real XLSX workbooks with multiple sheets, validated rows, worker-thread options, and streaming exports.",
+  "features": ["Real XLSX download", "Multi-sheet workbooks", "Row validation"],
+  "icon": "▦",
+  "color": "pink",
+  "repository": "https://github.com/DipanshuHandoo/excelio",
+  "npm": "https://www.npmjs.com/package/@dipanshuhandoo/excelio"
+}
