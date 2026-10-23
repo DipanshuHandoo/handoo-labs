@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Run MongoDock against a real MongoDB database: batched bulk writes, offset and keyset pagination, streaming, transactions, and safety guards.">
+  <title>MongoDock playground — Handoo Labs</title>
+  <link rel="stylesheet" href="/assets/styles.css"><link rel="stylesheet" href="/assets/demo.css"><link rel="stylesheet" href="/mongodock/assets/tool.css">
+  <script src="/assets/theme.js" defer></script><script src="/assets/components.js" defer></script><script src="/assets/playground.js" defer></script><script src="/mongodock/assets/demo.js" defer></script>
+</head>
+<body class="tool-amber"><div class="site-shell"><site-header active="tool"></site-header><main id="main-content" class="tool-main">
+  <a class="tool-back" href="/#toolkit"><span aria-hidden="true">←</span> All tools</a>
+  <section class="tool-hero"><div class="tool-hero-content"><span class="eyebrow"><span class="status-dot"></span> DATA · LIVE MONGODB PLAYGROUND</span><h1>MongoDock</h1><p>A functional Mongoose service toolkit with explicit lifecycles and bounded processing. Seed a real collection through slot-pooled bulk writes, page through it two ways, stream it in batches, and watch the safety guards stop dangerous queries before they reach the database.</p><div class="tool-links"><a class="quiet-link" href="https://www.npmjs.com/package/@dipanshuhandoo/mongodock" target="_blank" rel="noreferrer">View on npm ↗</a><a class="quiet-link" href="https://github.com/DipanshuHandoo/mongodock" target="_blank" rel="noreferrer">Source ↗</a></div><div class="feature-row"><span class="feature-pill">Batched bulkWrite</span><span class="feature-pill">Offset + keyset pages</span><span class="feature-pill">Streaming batches</span><span class="feature-pill">Transactions</span><span class="feature-pill">Safety guards</span><span class="feature-pill">Hook pipeline</span></div></div><div class="tool-symbol" aria-hidden="true">⬢</div></section>
+
+  <div id="md-offline" class="disclosure md-offline" hidden><strong>Live playground offline.</strong> <span id="md-offline-text">This server has no MongoDB configured for the demo.</span> The code samples below still show exactly how each feature is called.</div>
+
+  <section class="lab-section"><div class="lab-heading"><div><h2>Connection &amp; your data</h2><p>One service owns the connection. Every visitor works in an isolated slice of the collection that is removed when the session ends.</p></div><span class="tool-category" id="md-connection-tag">CHECKING…</span></div>
+    <div id="md-metrics" class="metric-grid"></div>
+    <div class="md-toolbar"><button class="secondary-button" type="button" id="md-health">Run healthCheck()</button><button class="secondary-button" type="button" id="md-reset">Reset my documents</button><span class="status-line" id="md-top-status" role="status" aria-live="polite"></span></div>
+  </section>
+
+  <section class="lab-section"><div class="lab-heading"><div><h2>1 · Seed with batched bulkWrite</h2><p>A lazy generator feeds <code>bulkWrite({ batching: true })</code>. Operations are grouped into batches and written through an async slot pool with bounded concurrency.</p></div><span class="tool-category">ASYNC SLOT POOL INSIDE</span></div>
+    <div class="workspace"><form class="controls" id="md-seed-form">
+      <div class="control-group"><label for="md-count">Documents <output id="md-count-out">200</output></label><input id="md-count" type="range" min="10" max="1000" step="10" value="200"></div>
+      <div class="control-group"><label for="md-batch">Batch size <output id="md-batch-out">25</output></label><input id="md-batch" type="range" min="5" max="200" step="5" value="25"></div>
+      <div class="control-group"><label for="md-concurrency">Concurrent batches <output id="md-concurrency-out">4</output></label><input id="md-concurrency" type="range" min="1" max="8" value="4"></div>
+      <div class="control-group"><label for="md-invalid">Invalid rows (negative price) <output id="md-invalid-out">3</output></label><input id="md-invalid" type="range" min="0" max="20" value="3"></div>
+      <button class="run-button" type="submit">Run bulk insert <span aria-hidden="true">↗</span></button>
+      <div class="status-line" id="md-seed-status" role="status" aria-live="polite">Invalid rows fail schema validation; the rest of their batch still succeeds.</div>
+    </form>
+    <div class="output"><div class="output-head"><span class="output-title">BATCH TIMELINE</span><span class="output-note" id="md-seed-note">Waiting for a run</span></div><div id="md-batches" class="md-batches" aria-label="Batch outcomes"></div><div id="md-report" class="metric-grid md-report"></div><div id="md-diagnostics" class="result-list"></div></div></div>
+    <pre class="md-code"><code>const report = await db.bulkWrite({
+  model: "PlaygroundItem",
+  batching: true,
+  operations: lazyInserts(),          // array, Iterable or AsyncIterable
+  batchSize: <span id="md-code-batch">25</span>,
+  concurrency: <span id="md-code-concurrency">4</span>,
+  onBatch: (outcome) =&gt; emit(outcome), // streamed to this page live
+});</code></pre>
+  </section>
+
+  <section class="lab-section"><div class="lab-heading"><div><h2>2 · Query explorer</h2><p>Compare offset pagination (<code>paginate</code>) with keyset pagination (<code>paginateCursor</code>) on the same filter and sort.</p></div><span class="tool-category">DETERMINISTIC _id TIE-BREAKER</span></div>
+    <div class="workspace"><form class="controls" id="md-query-form">
+      <div class="md-segment" role="radiogroup" aria-label="Pagination mode"><label><input type="radio" name="md-mode" value="paginate" checked><span>Offset</span></label><label><input type="radio" name="md-mode" value="cursor"><span>Keyset</span></label></div>
+      <div class="control-group"><label for="md-category">Category</label><select id="md-category"><option value="">All categories</option></select></div>
+      <div class="md-row"><div class="control-group"><label for="md-sort">Sort by</label><select id="md-sort"><option value="price">price</option><option value="name">name</option><option value="stock">stock</option><option value="createdAt">createdAt</option></select></div><div class="control-group"><label for="md-direction">Order</label><select id="md-direction"><option value="asc">ascending</option><option value="desc">descending</option></select></div></div>
+      <div class="control-group"><label for="md-limit">Page size <output id="md-limit-out">8</output></label><input id="md-limit" type="range" min="1" max="25" value="8"></div>
+      <button class="run-button" type="submit">Run query <span aria-hidden="true">↗</span></button>
+      <div class="status-line" id="md-query-status" role="status" aria-live="polite">Offset pages cost O(skip); keyset pages stay fast at any depth.</div>
+    </form>
+    <div class="output"><div class="output-head"><span class="output-title" id="md-query-title">RESULTS</span><span class="output-note" id="md-query-meta">No query yet</span></div><div id="md-table" class="empty-output">Seed some documents, then run a query.</div><div class="md-pager"><button class="secondary-button" type="button" id="md-prev" disabled>← Previous</button><span id="md-page-label" class="output-note"></span><button class="secondary-button" type="button" id="md-next" disabled>Next →</button></div><div id="md-cursor" class="md-cursor" hidden></div></div></div>
+  </section>
+
+  <section class="lab-section"><div class="lab-heading"><div><h2>3 · Aggregate &amp; stream</h2><p>Run an <code>aggregate</code> pipeline, or walk the whole slice with <code>iterateBatches</code> using bounded memory.</p></div><span class="tool-category">BACKPRESSURE-AWARE</span></div>
+    <div class="md-grid-2">
+      <div class="output"><div class="output-head"><span class="output-title">CATEGORY AGGREGATE</span><button class="secondary-button md-small" type="button" id="md-aggregate">Run aggregate()</button></div><div id="md-chart" class="empty-output">Group documents by category to compare counts and average prices.</div></div>
+      <div class="output"><div class="output-head"><span class="output-title">STREAM BATCHES</span><span class="md-inline"><select id="md-strategy" aria-label="Stream strategy"><option value="cursor">cursor</option><option value="keyset">keyset</option></select><select id="md-stream-size" aria-label="Stream batch size"><option>25</option><option selected>50</option><option>100</option><option>250</option></select><button class="secondary-button md-small" type="button" id="md-stream">Stream</button></span></div><div id="md-stream-out" class="empty-output">Stream every document you own in batches and sum their stock as it goes.</div></div>
+    </div>
+  </section>
+
+  <section class="lab-section"><div class="lab-heading"><div><h2>4 · Writes, guards &amp; transactions</h2><p>Bounded writes, refusal of dangerous operations before dispatch, and atomic multi-document updates.</p></div><span class="tool-category">SAFE BY DEFAULT</span></div>
+    <div class="md-grid-3">
+      <form class="controls md-card" id="md-update-form"><h3>updateMany</h3><p class="md-muted">Reprice one category. Update validators run by default.</p><div class="control-group"><label for="md-update-category">Category</label><select id="md-update-category"></select></div><div class="control-group"><label for="md-percent">Change <output id="md-percent-out">+10%</output></label><input id="md-percent" type="range" min="-50" max="100" step="5" value="10"></div><button class="run-button" type="submit">Apply update</button><div class="status-line" id="md-update-status" role="status" aria-live="polite"></div></form>
+      <form class="controls md-card" id="md-guard-form"><h3>Safety guards</h3><p class="md-muted">Try something dangerous. MongoDock rejects it before any network call.</p><div class="control-group"><label for="md-guard">Attempt</label><select id="md-guard"><option value="deleteAll">deleteMany({ filter: {} })</option><option value="updateAll">updateMany({ $and: [{}] })</option><option value="outStage">aggregate with $out</option></select></div><button class="run-button md-danger" type="submit">Try it</button><div id="md-guard-out" class="md-guard-out" role="status" aria-live="polite"></div></form>
+      <form class="controls md-card" id="md-tx-form"><h3>withTransaction</h3><p class="md-muted">Move stock between your two best-stocked items in one transaction.</p><div class="control-group"><label for="md-qty">Units to move <output id="md-qty-out">5</output></label><input id="md-qty" type="range" min="1" max="50" value="5"></div><label class="md-check"><input type="checkbox" id="md-abort"> Throw after both writes (rollback)</label><button class="run-button" type="submit">Run transaction</button><div id="md-tx-out" class="md-guard-out" role="status" aria-live="polite"></div></form>
+    </div>
+  </section>
+
+  <section class="lab-section"><div class="lab-heading"><div><h2>Hook pipeline log</h2><p>A service-level <code>onComplete</code> hook records every logical operation with its invocation and database outcomes.</p></div><span class="tool-category">OBSERVABILITY</span></div>
+    <div id="md-activity" class="result-list"><div class="empty-output">Operations you run appear here.</div></div>
+    <div class="bottom-note">Documents are stored in a shared demo collection, scoped to your browser session, capped at <span id="md-max-docs">2000</span> per visitor, and removed when your session expires (or within <span id="md-ttl">60</span> minutes by TTL index). Connection strings never leave the server.</div>
+  </section>
+</main><site-footer></site-footer></div></body></html>

@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Interactive, production-minded playgrounds for Handoo Labs npm packages.",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.18.0"
   },
   "scripts": {
     "start": "node server.js",
@@ -18,7 +18,9 @@
     "@dipanshuhandoo/cache-bridge": "^1.1.0",
     "@dipanshuhandoo/excelio": "^1.0.0",
     "@dipanshuhandoo/fetchforge": "^1.2.0",
-    "express": "^5.3.0"
+    "@dipanshuhandoo/mongodock": "^2.0.4",
+    "express": "^5.3.0",
+    "mongoose": "^9.11.3"
   },
   "overrides": {
     "exceljs": {

@@ -30,7 +30,7 @@ function cookieFrom(response) {
   return response.headers.get('set-cookie')?.split(';', 1)[0];
 }
 
-test('serves the homepage and discovers four package playgrounds', async () => {
+test('serves the homepage and discovers every package playground', async () => {
   const homepage = await fetch(`${baseUrl}/`);
   assert.equal(homepage.status, 200);
   assert.match(await homepage.text(), /Small tools/);
@@ -41,10 +41,10 @@ test('serves the homepage and discovers four package playgrounds', async () => {
   const { response, data } = await json('/api/tools');
   assert.equal(response.status, 200);
   assert.deepEqual(new Set(data.map((tool) => tool.slug)), new Set([
-    'async-slot-pool', 'cache-bridge', 'excelio', 'fetchforge',
+    'async-slot-pool', 'cache-bridge', 'excelio', 'fetchforge', 'mongodock',
   ]));
   assert.ok(data.every((tool) => tool.npm.startsWith('https://')));
-  for (const slug of ['async-slot-pool', 'cache-bridge', 'excelio', 'fetchforge']) {
+  for (const slug of ['async-slot-pool', 'cache-bridge', 'excelio', 'fetchforge', 'mongodock']) {
     const page = await fetch(`${baseUrl}/${slug}/`);
     assert.equal(page.status, 200, `${slug} playground page`);
   }

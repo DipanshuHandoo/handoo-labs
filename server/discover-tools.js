@@ -17,7 +17,7 @@ export async function discoverTools(toolsDir) {
       || !Array.isArray(metadata.features) || metadata.features.length > 12
       || !metadata.features.every((feature) => isText(feature, 48))
       || !isText(metadata.icon, 8)
-      || !['violet', 'blue', 'mint', 'pink'].includes(metadata.color)
+      || !['violet', 'blue', 'mint', 'pink', 'amber'].includes(metadata.color)
       || !/^https:\/\/\S+$/.test(metadata.npm) || !/^https:\/\/\S+$/.test(metadata.repository)) {
       throw new Error(`Invalid tool metadata in ${name}/tool.json`);
     }

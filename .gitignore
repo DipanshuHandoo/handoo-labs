@@ -159,4 +159,3 @@ ssl/
 *.pfx
 *.p12
 # Self-signed localhost fixture used only by test/https.test.js
-!test/fixtures/tls/*.pem

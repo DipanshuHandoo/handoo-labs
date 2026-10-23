@@ -1,0 +1,12 @@
+{
+  "slug": "mongodock",
+  "name": "MongoDock",
+  "package": "@dipanshuhandoo/mongodock",
+  "category": "Data",
+  "description": "Run a functional Mongoose service on a real MongoDB database: batched bulk writes, offset and keyset pagination, streaming, transactions, and safety guards.",
+  "features": ["Slot-pooled bulk writes", "Keyset pagination", "Safety guards"],
+  "icon": "⬢",
+  "color": "amber",
+  "repository": "https://github.com/DipanshuHandoo/mongodock",
+  "npm": "https://www.npmjs.com/package/@dipanshuhandoo/mongodock"
+}

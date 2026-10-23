@@ -51,6 +51,7 @@ Ports below 1024 need elevated privileges. On Linux, grant only the binding capa
   - **ExcelIO:** editable bounded sample data, multi-sheet XLSX generation and download, read-back, optional worker-thread writing, and row validation.
   - **Cache Bridge:** visitor-isolated in-memory LRU cache, per-key TTL, and package-provided cache statistics.
   - **FetchForge:** retries, timeouts, circuit breaking, and response caching against a controlled in-process mock fetch service.
+  - **MongoDock:** a live MongoDB playground with streamed batched `bulkWrite`, offset and keyset pagination, aggregation, batch streaming, safety guards, transactions, health checks, and a hook-driven operation log.
 - Each tool has its own metadata, page, assets, and optional Express router. Adding a backend-enabled tool requires a `tools/<slug>/` directory containing `tool.json`, `index.html`, `assets/`, and optionally `server.js` exporting an Express router. A browser-only page can omit `server.js`. Tool metadata is validated and discovered at startup, so malformed metadata fails loudly.
 - Shared navigation, theme controls, page layout/styles, accessible components, and helpers live in `public/assets/`.
 
@@ -58,11 +59,21 @@ Ports below 1024 need elevated privileges. On Linux, grant only the binding capa
 
 ## Demo limits and privacy
 
-Playground runs are manual and temporary; the app has no login, analytics, database, Redis service, external-URL proxy, arbitrary code runner, or file-upload endpoint. Sample data is processed by the actual package; failures and partial outcomes remain visible.
+Playground runs are manual and temporary; the app has no login, analytics, Redis service, external-URL proxy, arbitrary code runner, or file-upload endpoint. The only database is the optional MongoDock demo database described below. Sample data is processed by the actual package; failures and partial outcomes remain visible.
 
 The app caps JSON requests at 64 KB, public API requests at 60 per IP per minute, active package operations at 8 per process, in-memory demo sessions at 1,000, and idle demo sessions at 15 minutes. ExcelIO accepts up to 75 rows and caps generated workbooks at 1 MB. Cache Bridge sessions are private to one browser and process, hold at most six keys, and do not persist to Redis. FetchForge has a fixed mock service; unmatched URLs cannot leave the process.
 
-Limits and sessions are in-memory and per process. This initial release is designed for a single Node.js instance; horizontal scaling needs sticky routing for stateful demonstrations or an intentionally shared session design. All demo content is nonpersistent and disappears on expiration or restart.
+### MongoDock demo database
+
+The MongoDock playground needs a real MongoDB. Set `MONGODOCK_DEMO_URI` to a dedicated, disposable database (for example a free MongoDB Atlas M0 cluster: `mongodb+srv://user:pass@cluster.example.mongodb.net/handoo_labs_demo`). On Atlas, allow your host's outbound IP under Network Access. Without the variable, the page loads and shows an "offline" banner; the rest of the site is unaffected.
+
+- All documents live in one collection, `handoo_playground_items`. Every query is scoped to the visitor's session ID, so visitors never see each other's data.
+- Each visitor can hold at most 2,000 documents, inserted at most 1,000 per run. A visitor's documents are deleted when their session expires, and a TTL index removes anything older than 60 minutes as a backstop.
+- The connection is opened lazily on the first request, retried at most every 15 seconds after a failure, and indexes are created once at connect time. Connection strings are never sent to the browser or logged.
+- Transactions need a replica set. Atlas provides one; a standalone server reports the transaction as unsupported instead of failing.
+- Use a database user with `readWrite` on that database only.
+
+Limits and sessions are in-memory and per process. This initial release is designed for a single Node.js instance; horizontal scaling needs sticky routing for stateful demonstrations or an intentionally shared session design. All demo content is nonpersistent and disappears on expiration or restart (MongoDock documents expire as described above).
 
 Deploy behind HTTPS on a Node-capable host. Set `TRUST_PROXY_HOPS` to the exact number of trusted reverse proxies in front of Express (default `0`); this lets the IP-based limiter and secure cookies use the real client connection without trusting arbitrary forwarded headers. Keep `NODE_ENV=production`, allow only the application origin, and don't expose the server's demo APIs through an untrusted proxy.
 

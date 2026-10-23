@@ -1,15 +1,25 @@
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
-import { readFile } from 'node:fs/promises';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import http from 'node:http';
 import https from 'node:https';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import test from 'node:test';
+import test, { after } from 'node:test';
 
-const fixture = (name) => fileURLToPath(new URL(`./fixtures/tls/${name}`, import.meta.url));
-const certPath = fixture('localhost-cert.pem');
-const keyPath = fixture('localhost-key.pem');
+// A throwaway self-signed certificate is generated per run so no private key is committed.
+const tlsDir = mkdtempSync(join(tmpdir(), 'handoo-labs-tls-'));
+const certPath = join(tlsDir, 'localhost-cert.pem');
+const keyPath = join(tlsDir, 'localhost-key.pem');
+const openssl = spawnSync('openssl', [
+  'req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '1',
+  '-keyout', keyPath, '-out', certPath,
+  '-subj', '/CN=localhost', '-addext', 'subjectAltName=DNS:localhost',
+], { stdio: 'ignore' });
+const noTls = openssl.status === 0 ? false : 'openssl is required to generate a test certificate';
+after(() => rmSync(tlsDir, { recursive: true, force: true }));
 
 function startEntry(context, extraEnv) {
   const env = { ...process.env, TRUST_PROXY_HOPS: '0', ...extraEnv };
@@ -54,16 +64,16 @@ function request(client, url, options = {}) {
   });
 }
 
-test('serves HTTPS with HSTS when certificate paths are configured', { timeout: 15_000 }, async (context) => {
+test('serves HTTPS with HSTS when certificate paths are configured', { timeout: 15_000, skip: noTls }, async (context) => {
   const child = startEntry(context, { SSL_KEY_PATH: keyPath, SSL_CERT_PATH: certPath, HTTPS_PORT: '0' });
   const [[, port]] = await waitForLog(child, /listening on https:\/\/localhost:(\d+)/g);
-  const response = await request(https, `https://localhost:${port}/healthz`, { ca: await readFile(certPath) });
+  const response = await request(https, `https://localhost:${port}/healthz`, { ca: readFileSync(certPath) });
   assert.equal(response.status, 200);
   assert.deepEqual(JSON.parse(response.body), { status: 'ok' });
   assert.equal(response.headers['strict-transport-security'], 'max-age=31536000');
 });
 
-test('redirects plain HTTP to HTTPS when HTTP_REDIRECT_PORT is set', { timeout: 15_000 }, async (context) => {
+test('redirects plain HTTP to HTTPS when HTTP_REDIRECT_PORT is set', { timeout: 15_000, skip: noTls }, async (context) => {
   const child = startEntry(context, {
     SSL_KEY_PATH: keyPath,
     SSL_CERT_PATH: certPath,
